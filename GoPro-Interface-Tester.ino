@@ -20,7 +20,7 @@
  **************************************************************************/
 
 #define PROGRAM "GoPro Interface Tester Hero9 Hero10"
-#define VERSION "Ver 0.2 2022-02-24"
+#define VERSION "Ver 0.3 2022-03-07"
 
 #define DEBUG_OUTPUT 1
 
@@ -98,11 +98,11 @@ static long keepAliveTicker = 0;
 static long ticker = 0;
 static bool onOffLED = false;
 
-static uint8_t notifyCommandData[16];
+static uint8_t notifyCommandData[128];
 static size_t  notifyCommandLength;
-static uint8_t notifySettingsData[16];
+static uint8_t notifySettingsData[128];
 static size_t  notifySettingsLength;
-static uint8_t notifyQueryData[16];
+static uint8_t notifyQueryData[128];
 static size_t  notifyQueryLength;
 
 static void notifyCommandCallback(
@@ -459,6 +459,9 @@ void on_ble_receive(std::string msg)
       case 9:
       {
         SendString_ble("09 NTP ");
+
+        //GetDateTime();
+        
         Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
         SendString_ble(cbuf);
         SendString_ble("\n");
@@ -872,11 +875,12 @@ void StopVideo()
 void GetDateTime()
 {
   uint8_t array[7];
-  
-  Serial.println("Get GoPro Date Time");
+
+#if 0  
+  Serial.println("Register for status updates");
   waitForQueryNotify = false;
   array[0] = 0x02;
-  array[1] = 0x13;
+  array[1] = 0x53;
   array[2] = 0x28;
   array[3] = 0x00;
   array[4] = 0x00;
@@ -888,8 +892,44 @@ void GetDateTime()
     Serial.print("!");
     delay(500);
   }
-//  if (notifyQueryData[5] == 0)
-//    break;
+#endif
+
+  Serial.println("Get GoPro Date Time");
+  waitForQueryNotify = false;
+  array[0] = 0x02;
+//  array[1] = 0x13;
+  array[1] = 0x93;
+  array[2] = 0x28;
+  array[3] = 0x00;
+  array[4] = 0x00;
+  array[5] = 0x00;
+  array[6] = 0x00;
+  pQueryCharacteristic->writeValue(array, 3);
+  while (waitForQueryNotify == false)
+  {
+    Serial.print("!");
+    delay(500);
+  }
+
+#if 0
+  Serial.println("Unregister for status updates");
+  waitForQueryNotify = false;
+  array[0] = 0x02;
+  array[1] = 0x73;
+  array[2] = 0x28;
+  array[3] = 0x00;
+  array[4] = 0x00;
+  array[5] = 0x00;
+  array[6] = 0x00;
+  pQueryCharacteristic->writeValue(array, 3);
+  while (waitForQueryNotify == false)
+  {
+    Serial.print("!");
+    delay(500);
+  }
+#endif
+
+
 }
 
 void KeepAlive()
