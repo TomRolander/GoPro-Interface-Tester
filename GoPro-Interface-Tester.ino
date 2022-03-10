@@ -20,7 +20,7 @@
  **************************************************************************/
 
 #define PROGRAM "GoPro Interface Tester Hero9 Hero10"
-#define VERSION "Ver 0.3 2022-03-07"
+#define VERSION "Ver 0.3 2022-03-10"
 
 #define DEBUG_OUTPUT 1
 
